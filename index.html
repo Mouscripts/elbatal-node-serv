@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.IO Chat</title>
+</head>
+
+<body>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send Now</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io({
+            transports: ["websocket"], // Ensure WebSocket is used
+            reconnectionDelay: 100, // Lower delay (default is 1000ms)
+            reconnectionAttempts: 5,
+        });
+
+        // Send a message when the form is submitted
+        document.getElementById('form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const input = document.getElementById('input');
+            if (input.value) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
+
+        // Listen for messages from the server
+        socket.on('chat message', function (msg) {
+            const item = document.createElement('li');
+            item.textContent = msg;
+            document.getElementById('messages').appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+        socket.on('user_connection', (connected_users_num) => {
+            console.log(connected_users_num);
+        });
+    </script>
+</body>
+
+</html>
