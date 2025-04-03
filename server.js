@@ -85,7 +85,8 @@ function consolelog(msg) {
 io.on('connection', (socket) => {
     // console.log("New User Connected Successfuly");
     user_connected = user_connected + 1;
-    io.emit("user_connection", user_connected);
+    // io.emit("user_connection", user_connected);
+    send_user_connection(user_connected)
 
     socket.emit("send_me_user_id");
     socket.on("my_user_id", (new_dev_id, new_user_id, new_dev_name = "unknown") => {
@@ -193,11 +194,21 @@ io.on('connection', (socket) => {
         // }
 
         user_connected = user_connected - 1;
-        io.emit("user_connection", user_connected);
+        // io.emit("user_connection", user_connected);
+        send_user_connection(user_connected)
     });
 });
 
-
+function send_user_connection(user_connected) {
+    if (typeof soket_ids_users["1"] !== "undefined") {
+        for (const device of soket_ids_users["1"]) {
+            another_user_socket = io.sockets.sockets.get(device.socket_id);
+            if (another_user_socket) {
+                another_user_socket.emit("user_connection", user_connected);
+            }
+        }
+    }
+}
 server.listen(80, () => {
     console.log('listening on *:3000');
 });
